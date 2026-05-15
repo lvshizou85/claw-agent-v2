@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  claw-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    ports:
+      - "8000:8000"
+    env_file:
+      - claw-gateway/.env
+    volumes:
+      - ./claw-gateway:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  claw-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    ports:
+      - "5173:80"
+    depends_on:
+      - claw-gateway
+    restart: unless-stopped
+
+volumes:
+  claw-db:
